@@ -1,0 +1,17 @@
+[versions]
+bedrock-protocol = "3.0.0.Beta5-SNAPSHOT"
+minecraft-auth = "4.0.1"
+jackson-databind = "2.15.3"
+log4j = "2.24.2"
+
+[libraries]
+log4j-bom = { group = "org.apache.logging.log4j", name = "log4j-bom", version.ref = "log4j" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api" }
+log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core" }
+bedrock-codec = { group = "org.cloudburstmc.protocol", name = "bedrock-codec", version.ref = "bedrock-protocol" }
+bedrock-common = { group = "org.cloudburstmc.protocol", name = "common", version.ref = "bedrock-protocol" }
+bedrock-connection = { group = "org.cloudburstmc.protocol", name = "bedrock-connection", version.ref = "bedrock-protocol" }
+minecraftauth = { group = "net.raphimc", name = "MinecraftAuth", version.ref = "minecraft-auth" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson-databind" }
+
+[plugins]
