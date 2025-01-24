@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.bedrock.codec)
     implementation(libs.bedrock.common)
     implementation(libs.bedrock.connection)
+    implementation(libs.kotlinx.coroutines)
     testImplementation(kotlin("test"))
 }
 

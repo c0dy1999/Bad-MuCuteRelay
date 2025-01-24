@@ -1,21 +1,20 @@
-package com.mucheng.mucute.relay.handler.packet
+package com.mucheng.mucute.relay.listener
 
-import com.mucheng.mucute.relay.handler.MinecraftRelayPacketHandler
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class LoggingPacketHandler : MinecraftRelayPacketHandler {
+open class LoggingPacketListener : MuCuteRelayPacketListener {
 
     var isEnabled = true
 
-    override fun onReceivedFromClient(packet: BedrockPacket): Boolean {
+    override fun beforeClientBound(packet: BedrockPacket): Boolean {
         if (isEnabled) {
             println("onReceivedFromClient: $packet")
         }
         return false
     }
 
-    override fun onReceivedFromServer(packet: BedrockPacket): Boolean {
+    override fun beforeServerBound(packet: BedrockPacket): Boolean {
         if (isEnabled) {
             println("onReceivedFromServer: $packet")
         }

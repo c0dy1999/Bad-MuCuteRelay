@@ -1,8 +1,9 @@
 [versions]
-bedrock-protocol = "3.0.0.Beta5-SNAPSHOT"
+bedrock-protocol = "3.0.0.Beta5-COMPOSITE"
 minecraft-auth = "4.0.1"
 jackson-databind = "2.15.3"
 log4j = "2.24.2"
+coroutines = "1.10.1"
 
 [libraries]
 log4j-bom = { group = "org.apache.logging.log4j", name = "log4j-bom", version.ref = "log4j" }
@@ -13,5 +14,6 @@ bedrock-common = { group = "org.cloudburstmc.protocol", name = "common", version
 bedrock-connection = { group = "org.cloudburstmc.protocol", name = "bedrock-connection", version.ref = "bedrock-protocol" }
 minecraftauth = { group = "net.raphimc", name = "MinecraftAuth", version.ref = "minecraft-auth" }
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson-databind" }
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 
 [plugins]

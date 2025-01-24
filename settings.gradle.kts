@@ -3,3 +3,5 @@ plugins {
 }
 rootProject.name = "MuCuteRelay"
 
+includeBuild("protocol")
+includeBuild("network")
