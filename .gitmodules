@@ -1,6 +1,6 @@
 [submodule "network"]
 	path = network
-	url = ./network
+	url = https://github.com/CaiMuCheng/Network.git
 [submodule "protocol"]
 	path = protocol
-	url = ./protocol
+	url = https://github.com/CaiMuCheng/Protocol.git
