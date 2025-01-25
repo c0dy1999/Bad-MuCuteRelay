@@ -67,7 +67,6 @@ import org.cloudburstmc.protocol.bedrock.codec.v766.Bedrock_v766
 import org.cloudburstmc.protocol.bedrock.data.EncodingSettings
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition
-import org.cloudburstmc.protocol.bedrock.data.definitions.SimpleItemDefinition
 import org.cloudburstmc.protocol.bedrock.packet.*
 import org.cloudburstmc.protocol.bedrock.util.EncryptionUtils
 import org.cloudburstmc.protocol.bedrock.util.JsonUtils
@@ -171,11 +170,11 @@ open class NecessaryPacketListener(
             muCuteRelaySession.server.codec = bedrockCodec
 
             val networkSettingsPacket = NetworkSettingsPacket()
-            networkSettingsPacket.compressionThreshold = 65535
-            networkSettingsPacket.compressionAlgorithm = PacketCompressionAlgorithm.ZLIB
+            networkSettingsPacket.compressionThreshold = 0
+            networkSettingsPacket.compressionAlgorithm = PacketCompressionAlgorithm.NONE
 
             muCuteRelaySession.clientBoundImmediately(networkSettingsPacket)
-            muCuteRelaySession.server.setCompression(PacketCompressionAlgorithm.ZLIB)
+            muCuteRelaySession.server.setCompression(PacketCompressionAlgorithm.NONE)
             return true
         }
         if (packet is LoginPacket) {
@@ -296,10 +295,9 @@ open class NecessaryPacketListener(
                 onlineKeyPair!!.private, serverKey,
                 Base64.getDecoder().decode(JsonUtils.childAsType(saltJwt, "salt", String::class.java))
             )
-            muCuteRelaySession.client!!.enableEncryption(key)
 
-            val clientToServerHandshake = ClientToServerHandshakePacket()
-            muCuteRelaySession.serverBoundImmediately(clientToServerHandshake)
+            muCuteRelaySession.client!!.enableEncryption(key)
+            muCuteRelaySession.serverBoundImmediately(ClientToServerHandshakePacket())
             return true
         }
         if (packet is StartGamePacket) {
@@ -310,16 +308,20 @@ open class NecessaryPacketListener(
 
             Definitions.itemDefinitions = SimpleDefinitionRegistry.builder<ItemDefinition>()
                 .addAll(packet.itemDefinitions)
-                .add(SimpleItemDefinition("minecraft:empty", 0, false))
                 .build()
 
             muCuteRelaySession.client!!.peer.codecHelper.itemDefinitions = Definitions.itemDefinitions
             muCuteRelaySession.server.peer.codecHelper.itemDefinitions = Definitions.itemDefinitions
 
-            muCuteRelaySession.client!!.peer.codecHelper.blockDefinitions = Definitions.blockDefinitions
-            muCuteRelaySession.server.peer.codecHelper.blockDefinitions = Definitions.blockDefinitions
+            if (packet.isBlockNetworkIdsHashed) {
+                muCuteRelaySession.client!!.peer.codecHelper.blockDefinitions = Definitions.blockDefinitionsHashed
+                muCuteRelaySession.server.peer.codecHelper.blockDefinitions = Definitions.blockDefinitionsHashed
+            } else {
+                muCuteRelaySession.client!!.peer.codecHelper.blockDefinitions = Definitions.blockDefinitions
+                muCuteRelaySession.server.peer.codecHelper.blockDefinitions = Definitions.blockDefinitions
+            }
 
-            muCuteRelaySession.multiThreadEnabled = true
+            // muCuteRelaySession.multiThreadEnabled = true
             return false
         }
         if (packet is CameraPresetsPacket) {

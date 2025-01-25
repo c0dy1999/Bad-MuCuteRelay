@@ -3,6 +3,7 @@ package com.mucheng.mucute.relay
 import com.mucheng.mucute.relay.handler.SessionCloseHandler
 import com.mucheng.mucute.relay.listener.MuCuteRelayPacketListener
 import io.netty.util.ReferenceCountUtil
+import io.netty.util.internal.PlatformDependent
 import kotlinx.coroutines.*
 import net.raphimc.minecraftauth.step.bedrock.session.StepFullBedrockSession
 import org.cloudburstmc.protocol.bedrock.BedrockClientSession
@@ -11,6 +12,7 @@ import org.cloudburstmc.protocol.bedrock.BedrockServerSession
 import org.cloudburstmc.protocol.bedrock.netty.BedrockPacketWrapper
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 import java.net.InetSocketAddress
+import java.util.Queue
 import java.util.concurrent.Executors
 
 
@@ -30,21 +32,22 @@ class MuCuteRelaySession internal constructor(
                 it.codec = server.codec
                 it.peer.codecHelper.blockDefinitions = server.peer.codecHelper.blockDefinitions
                 it.peer.codecHelper.itemDefinitions = server.peer.codecHelper.itemDefinitions
-                packetQueue.forEach { pair ->
+
+                var pair: Pair<BedrockPacket, Boolean>
+                while (packetQueue.poll().also { packetPair -> pair = packetPair } != null) {
                     if (pair.second) {
                         it.sendPacketImmediately(pair.first)
                     } else {
                         it.sendPacket(pair.first)
                     }
                 }
-                packetQueue.clear()
             }
             field = value
         }
 
     val listeners: MutableList<MuCuteRelayPacketListener> = ArrayList()
 
-    private val packetQueue: MutableList<Pair<BedrockPacket, Boolean>> = ArrayList()
+    private val packetQueue: Queue<Pair<BedrockPacket, Boolean>> = PlatformDependent.newMpscQueue()
 
     var multiThreadEnabled = false
 
@@ -117,7 +120,7 @@ class MuCuteRelaySession internal constructor(
                 }
             }
 
-            serverBound(packet)
+            serverBoundImmediately(packet)
 
             listeners.forEach { listener ->
                 try {

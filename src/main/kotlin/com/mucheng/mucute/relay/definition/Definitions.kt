@@ -1,19 +1,49 @@
 package com.mucheng.mucute.relay.definition
 
+import org.cloudburstmc.nbt.NbtMap
+import org.cloudburstmc.nbt.NbtType
+import org.cloudburstmc.nbt.NbtUtils
 import org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition
+import org.cloudburstmc.protocol.common.DefinitionRegistry
 import org.cloudburstmc.protocol.common.SimpleDefinitionRegistry
+import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Path
 
+
+@Suppress("MemberVisibilityCanBePrivate")
 object Definitions {
 
     val legacyIdMap: MutableMap<Int, String> = HashMap()
 
     val itemDataList: MutableList<DataEntry> = ArrayList()
 
-    var itemDefinitions: SimpleDefinitionRegistry<ItemDefinition> = SimpleDefinitionRegistry.builder<ItemDefinition>()
+    var itemDefinitions: DefinitionRegistry<ItemDefinition> = SimpleDefinitionRegistry.builder<ItemDefinition>()
         .build()
 
-    var blockDefinitions: SimpleDefinitionRegistry<BlockDefinition> = SimpleDefinitionRegistry.builder<BlockDefinition>()
-        .build()
+    var blockDefinitions: DefinitionRegistry<BlockDefinition> =
+        SimpleDefinitionRegistry.builder<BlockDefinition>()
+            .build()
+
+    var blockDefinitionsHashed: DefinitionRegistry<BlockDefinition> =
+        SimpleDefinitionRegistry.builder<BlockDefinition>()
+            .build()
+
+    fun loadBlockPalette() {
+        Definitions::class.java.classLoader.getResourceAsStream("nbt/block_palette.nbt")?.let {
+            val tag = loadGzipNBT(it)
+            if (tag is NbtMap) {
+                blockDefinitions = NbtBlockDefinitionRegistry(tag.getList("blocks", NbtType.COMPOUND), false)
+                blockDefinitionsHashed = NbtBlockDefinitionRegistry(tag.getList("blocks", NbtType.COMPOUND), true)
+            }
+        }
+    }
+
+    private fun loadGzipNBT(stream: InputStream): Any {
+        NbtUtils.createGZIPReader(stream).use { nbtInputStream ->
+            return nbtInputStream.readTag()
+        }
+    }
 
 }

@@ -325,7 +325,7 @@ public class LibrariesForLibsInPluginsBlock extends AbstractExternalDependencyFa
         public BedrockVersionAccessors(ProviderFactory providers, DefaultVersionCatalog config) { super(providers, config); }
 
         /**
-         * Version alias <b>bedrock.protocol</b> with value <b>3.0.0.Beta5-SNAPSHOT</b>
+         * Version alias <b>bedrock.protocol</b> with value <b>3.0.0.Beta5-COMPOSITE</b>
          * <p>
          * If the version is a rich version and cannot be represented as a
          * single version string, an empty string is returned.
