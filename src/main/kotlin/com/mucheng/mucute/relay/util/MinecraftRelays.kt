@@ -41,6 +41,7 @@ fun captureMuCuteRelay(
     localAddress: InetSocketAddress = InetSocketAddress("0.0.0.0", 19132),
     authSession: StepFullBedrockSession.FullBedrockSession? = null,
     advertisement: BedrockPong = MuCuteRelay.DefaultAdvertisement,
+    beforeCapture: () -> Unit = {},
     onSessionCreated: MuCuteRelaySession.() -> Unit
 ): MuCuteRelay {
     val muCuteRelay = MuCuteRelay(
@@ -48,6 +49,7 @@ fun captureMuCuteRelay(
         authSession = authSession,
         advertisement = advertisement
     )
+    beforeCapture()
     muCuteRelay.capture(
         remoteAddress = remoteAddress,
         onSessionCreated = onSessionCreated

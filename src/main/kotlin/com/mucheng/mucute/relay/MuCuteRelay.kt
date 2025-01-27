@@ -101,7 +101,7 @@ class MuCuteRelay(
             })
             .localAddress(localAddress)
             .bind()
-            .syncUninterruptibly()
+            .awaitUninterruptibly()
             .also {
                 it.channel().pipeline().remove(RakServerRateLimiter.NAME)
                 channelFuture = it
@@ -138,7 +138,7 @@ class MuCuteRelay(
             })
             .remoteAddress(muCuteRelaySession!!.remoteAddress)
             .connect()
-            .syncUninterruptibly()
+            .awaitUninterruptibly()
     }
 
     fun disconnect() {
@@ -147,8 +147,8 @@ class MuCuteRelay(
         }
 
         channelFuture?.channel()?.also {
-            it.close().syncUninterruptibly()
-            it.parent().close().syncUninterruptibly()
+            it.close().awaitUninterruptibly()
+            it.parent().close().awaitUninterruptibly()
         }
         channelFuture = null
         muCuteRelaySession = null
