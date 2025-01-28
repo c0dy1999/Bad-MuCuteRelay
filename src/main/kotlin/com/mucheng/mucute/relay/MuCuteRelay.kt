@@ -56,8 +56,6 @@ class MuCuteRelay(
 
     private var muCuteRelaySession: MuCuteRelaySession? = null
 
-    private val eventLoopGroup: EventLoopGroup = NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2)
-
     fun capture(
         remoteAddress: InetSocketAddress = InetSocketAddress("geo.hivebedrock.network", 19132),
         onSessionCreated: MuCuteRelaySession.() -> Unit
@@ -73,10 +71,13 @@ class MuCuteRelay(
 
 
         ServerBootstrap()
-            .group(eventLoopGroup)
+            .group(NioEventLoopGroup())
             .channelFactory(RakChannelFactory.server(NioDatagramChannel::class.java))
             .option(RakChannelOption.RAK_ADVERTISEMENT, advertisement.toByteBuf())
             .option(RakChannelOption.RAK_GUID, Random.nextLong())
+            .option(RakChannelOption.RAK_PACKET_LIMIT, Int.MAX_VALUE)
+            .option(RakChannelOption.RAK_GLOBAL_PACKET_LIMIT, Int.MAX_VALUE)
+            .option(RakChannelOption.RAK_FLUSH_INTERVAL, 1)
             .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             .childHandler(object : BedrockChannelInitializer<MuCuteRelaySession.ServerSession>() {
 
@@ -101,7 +102,7 @@ class MuCuteRelay(
             })
             .localAddress(localAddress)
             .bind()
-            .awaitUninterruptibly()
+            .syncUninterruptibly()
             .also {
                 it.channel().pipeline().remove(RakServerRateLimiter.NAME)
                 channelFuture = it
@@ -111,13 +112,13 @@ class MuCuteRelay(
     internal fun connectToServer(onSessionCreated: ClientSession.() -> Unit) {
         val clientGUID = Random.nextLong()
         Bootstrap()
-            .group(eventLoopGroup)
+            .group(NioEventLoopGroup())
             .channelFactory(RakChannelFactory.client(NioDatagramChannel::class.java))
             .option(RakChannelOption.RAK_PROTOCOL_VERSION, muCuteRelaySession!!.server.codec.raknetProtocolVersion)
             .option(RakChannelOption.RAK_GUID, clientGUID)
             .option(RakChannelOption.RAK_REMOTE_GUID, clientGUID)
-            .option(RakChannelOption.RAK_MTU, 1492)
-            .option(RakChannelOption.RAK_MTU_SIZES, arrayOf(1492, 1200, 576))
+            .option(RakChannelOption.RAK_MTU, 5980)
+            .option(RakChannelOption.RAK_MTU_SIZES, arrayOf(5980, 2990, 1993))
             .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             .handler(object : BedrockChannelInitializer<ClientSession>() {
 
@@ -138,7 +139,7 @@ class MuCuteRelay(
             })
             .remoteAddress(muCuteRelaySession!!.remoteAddress)
             .connect()
-            .awaitUninterruptibly()
+            .syncUninterruptibly()
     }
 
     fun disconnect() {
@@ -147,8 +148,8 @@ class MuCuteRelay(
         }
 
         channelFuture?.channel()?.also {
-            it.close().awaitUninterruptibly()
-            it.parent().close().awaitUninterruptibly()
+            it.close().syncUninterruptibly()
+            it.parent().close().syncUninterruptibly()
         }
         channelFuture = null
         muCuteRelaySession = null

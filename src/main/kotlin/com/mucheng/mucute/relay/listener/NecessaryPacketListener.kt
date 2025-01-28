@@ -171,10 +171,10 @@ open class NecessaryPacketListener(
 
             val networkSettingsPacket = NetworkSettingsPacket()
             networkSettingsPacket.compressionThreshold = 0
-            networkSettingsPacket.compressionAlgorithm = PacketCompressionAlgorithm.NONE
+            networkSettingsPacket.compressionAlgorithm = PacketCompressionAlgorithm.ZLIB
 
             muCuteRelaySession.clientBoundImmediately(networkSettingsPacket)
-            muCuteRelaySession.server.setCompression(PacketCompressionAlgorithm.NONE)
+            muCuteRelaySession.server.setCompression(PacketCompressionAlgorithm.ZLIB)
             return true
         }
         if (packet is LoginPacket) {

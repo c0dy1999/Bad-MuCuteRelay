@@ -12,8 +12,7 @@ import org.cloudburstmc.protocol.bedrock.BedrockServerSession
 import org.cloudburstmc.protocol.bedrock.netty.BedrockPacketWrapper
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket
 import java.net.InetSocketAddress
-import java.util.Queue
-import java.util.concurrent.Executors
+import java.util.*
 
 
 class MuCuteRelaySession internal constructor(
@@ -48,10 +47,6 @@ class MuCuteRelaySession internal constructor(
     val listeners: MutableList<MuCuteRelayPacketListener> = ArrayList()
 
     private val packetQueue: Queue<Pair<BedrockPacket, Boolean>> = PlatformDependent.newMpscQueue()
-
-    var multiThreadEnabled = false
-
-    private val scope = CoroutineScope(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()).asCoroutineDispatcher() + SupervisorJob() + CoroutineName("RakRelay"))
 
     fun clientBound(packet: BedrockPacket) {
         server.sendPacket(packet)
@@ -100,13 +95,7 @@ class MuCuteRelaySession internal constructor(
             val packet = wrapper.packet
             ReferenceCountUtil.retain(packet)
 
-            if (multiThreadEnabled) {
-                scope.launch {
-                    handlePacket(packet)
-                }
-            } else {
-                handlePacket(packet)
-            }
+            handlePacket(packet)
         }
 
         private fun handlePacket(packet: BedrockPacket) {
@@ -156,13 +145,7 @@ class MuCuteRelaySession internal constructor(
             val packet = wrapper.packet
             ReferenceCountUtil.retain(packet)
 
-            if (multiThreadEnabled) {
-                scope.launch {
-                    handlePacket(packet)
-                }
-            } else {
-                handlePacket(packet)
-            }
+            handlePacket(packet)
         }
 
         private fun handlePacket(packet: BedrockPacket) {
@@ -176,7 +159,7 @@ class MuCuteRelaySession internal constructor(
                 }
             }
 
-            clientBound(packet)
+            clientBoundImmediately(packet)
 
             listeners.forEach { listener ->
                 try {
