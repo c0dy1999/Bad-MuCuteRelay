@@ -16,3 +16,6 @@ replay_pid*
 log/
 auth.json
 build/
+.gradle/
+.idea/
+.kotlin/
