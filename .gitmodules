@@ -1,6 +1,6 @@
 [submodule "network"]
 	path = network
-	url = https://github.com/CaiMuCheng/Network.git
+	url = https://github.com/CloudburstMC/Network.git
 [submodule "protocol"]
 	path = protocol
-	url = https://github.com/CaiMuCheng/Protocol.git
+	url = https://github.com/CloudburstMC/Protocol.git
